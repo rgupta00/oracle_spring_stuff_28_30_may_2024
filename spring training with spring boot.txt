@@ -1,0 +1,57 @@
+Spring - 3 days
+=================
+Introduction
+Spring Introduction
+•	Shortcomings of Java EE and the Need for Loose Coupling
+•	Managing Beans, The Spring Container, Inversion of Control
+•	The Factory Pattern
+•	Configuration Metadata - XML, @Component, Auto-Detecting Beans
+•	Dependencies and Dependency Injection (DI) with the BeanFactory
+•	Setter Injection
+ Dependency Injection
+•	Using the Application Context
+•	Constructor Injection
+ The Spring Container and API
+•	The Spring Managed Bean Lifecycle
+•	Autowiring Dependencies
+ 
+Other Metadata Configurations
+•	Annotation Configuration @Autowired, @Required, @Resource
+•	@Component
+•	@Value and @Qualifier
+•	Life Cycle Annotations
+•	Java Configuration, @Configuration, XML free configuration 
+•	The AnnotationConfigApplicationContext
+
+
+
+Spring and Persistence
+•	Spring and JDBC
+•	Spring and ORM
+
+Spring Boot
+Spring Boot Framework – High Level Overview
+•	Spring Architecture
+•	Spring Containers
+•	Spring Bean Lifecycle
+•	Spring DI
+•	Spring Autowiring
+
+
+Spring Boot – Database Integration
+•	Spring Boot – JDBC
+•	Spring Boot – JPA
+•	Spring Boot – Data
+Introduction to Actuator
+
+RESTful Web Services
+•	Core REST concepts
+•	REST support in Spring
+•	Use Spring MVC to create RESTful Web services
+•	REST specific Annotations in Spring
+•	URITemplates, @PathVariable, @RequestParam
+•	JSON and XML data exchange
+•	@RequestMapping
+
+
+
