@@ -380,3 +380,21 @@
 2024-05-28 13:11:11,663 [Worker-80: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\test\resources to target\test-classes
 2024-05-28 13:11:51,774 [Worker-82: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
 2024-05-28 13:11:51,775 [Worker-82: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\test\resources to target\test-classes
+2024-05-28 13:13:56,276 [Worker-76: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2024-05-28 13:13:56,278 [Worker-76: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\test\resources to target\test-classes
+2024-05-28 13:14:02,207 [Worker-76: Launching Main (3)] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2024-05-28 13:14:02,214 [Worker-76: Launching Main (3)] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\test\resources to target\test-classes
+2024-05-28 13:14:37,578 [Worker-76: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2024-05-28 13:14:37,580 [Worker-76: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\test\resources to target\test-classes
+2024-05-28 13:14:53,001 [Worker-70: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2024-05-28 13:14:53,008 [Worker-70: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\test\resources to target\test-classes
+2024-05-28 14:22:05,991 [Worker-8: Loading available Gradle versions] INFO  o.e.b.c.i.u.g.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
+2024-05-28 15:04:28,618 [Worker-19: Creating project "sampleproject"] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.demo:sampleproject:0.0.1-SNAPSHOT @ C:\oracle_spring_stuff_28_30_may_2024\core_spring\sampleproject\pom.xml.
+2024-05-28 15:04:29,673 [Worker-19: Creating project "sampleproject"] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /sampleproject/src/main/java
+2024-05-28 15:04:29,675 [Worker-19: Creating project "sampleproject"] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /sampleproject/src/main/resources
+2024-05-28 15:04:29,676 [Worker-19: Creating project "sampleproject"] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /sampleproject/src/test/java
+2024-05-28 15:04:29,677 [Worker-19: Creating project "sampleproject"] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /sampleproject/src/test/resources
+2024-05-28 15:04:30,497 [Worker-23: Building] WARN  o.a.m.s.f.DefaultMavenResourcesFiltering - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+2024-05-28 15:04:30,522 [Worker-23: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2024-05-28 15:04:30,535 [Worker-23: Building] WARN  o.a.m.s.f.DefaultMavenResourcesFiltering - Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+2024-05-28 15:04:30,541 [Worker-23: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\test\resources to target\test-classes
