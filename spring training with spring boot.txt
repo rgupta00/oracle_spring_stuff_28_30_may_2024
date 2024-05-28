@@ -193,11 +193,48 @@ Session 5: Creating application from scratch, Spring jdbc, JdbcTemplate
 
 Spring DI AOP bank application step by step:
 ----------------------------------------
+
+use :
+
+<properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring.version>5.3.27</spring.version>
+    </properties>
+    
+    <dependencies>
+		  <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.3.27</version>
+        </dependency>
+	</dependencies>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Step 1: create maven project , put dependencies and log4j2 file
 
     <properties>
-        <maven.compiler.source>21</maven.compiler.source>
-        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>5.3.27</spring.version>
     </properties>
