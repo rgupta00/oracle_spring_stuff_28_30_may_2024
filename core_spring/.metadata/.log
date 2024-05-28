@@ -7389,3 +7389,9 @@ java.util.concurrent.TimeoutException
 
 !ENTRY org.springframework.tooling.boot.ls 1 0 2024-05-28 15:06:29.065
 !MESSAGE Classpath changed for project: sampleproject
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2024-05-28 15:32:39.047
+!MESSAGE Classpath changed for project: sampleproject
+
+!ENTRY org.springframework.tooling.boot.ls 1 0 2024-05-28 15:32:39.056
+!MESSAGE Boot project REMOVED: sampleproject
