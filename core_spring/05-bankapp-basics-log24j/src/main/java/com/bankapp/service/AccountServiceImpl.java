@@ -2,6 +2,8 @@ package com.bankapp.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ public class AccountServiceImpl implements AccountService{
 	private AccountDao accountDao;
 	
 	private EmailService emailService;
+	
+	private Logger logger=LoggerFactory.getLogger(AccountServiceImpl.class);
 	
 	//ctr injection
 	@Autowired
@@ -46,6 +50,7 @@ public class AccountServiceImpl implements AccountService{
 
 	@Override
 	public void transfer(int fromId, int toId, double amount) {
+		long start=System.currentTimeMillis();
 		Account fromAcc=getById(fromId);
 		Account toAcc=getById(toId);
 		
@@ -58,6 +63,9 @@ public class AccountServiceImpl implements AccountService{
 		if(emailService!=null) {
 			emailService.sendEmail("rgupta.mtech@gmail.com");
 		}
+		
+		long end=System.currentTimeMillis();
+		logger.info("transfer method take "+(end-start)+" ms to execute");
 	}
 
 	@Override
