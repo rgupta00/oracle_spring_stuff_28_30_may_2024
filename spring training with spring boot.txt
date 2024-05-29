@@ -48,6 +48,87 @@ oracle or mysql
  mysql 8.x
  
  
+Spring framework:
+-------------------
+java framework that make sw easy 
+Depdendency injection
+	loose coupling
+	
+	pull vs push
+	
+	spring framework act as a container and manage the life cycle of the beans
+	Car , Passanger, AccountService, AccountDao
+	
+	how to configure the beans:
+	----------------------------
+	1. pure xml
+	2.xml + annotation
+	3. java config + annotation (spring boot)
+	
+	what are main annotation we hv done :
+	---------------------------------------
+	
+			@Component
+			 |
+		--------------------------------------------------
+		|						|						|
+		@Controller			@Service				@Repository
+		
+		controller				service					Repository
+		
+		
+		
+		@Autowire
+			DI at 3 places:
+			
+				1. field injection    XX
+				2. setter injection  (non mandatory dep)
+				3. ctr injection   (mandatory dep)
+				
+		Spring profile:
+		------------------
+		@Profile("test")
+		
+		VM arg:
+		-Dspring.profiles.active=dev
+		
+		u can swap the implementation with out changing the code
+		
+		
+		web---------------- service ----------------repository ----------- db
+		
+		ravi				mohit						anil (hashmap)
+															jdbc
+															
+				
+				
+				
+spring basics
+jdbc basics
+jpa basics
+
+Spring boot: (most poplular framewrok in java)
+------------------------------------------------
+H2 database with spring boot
+h2 is in memory database
+
+
+spring REST
+bank application
+ex handling
+validation
+database with h2
+spring security
+microservice idea
+docker
+		
+		
+		
+		
+	
+	
+ 
+ 
  
  
  
@@ -174,174 +255,29 @@ transfer the fund
 deposit
 withdraw
 
-Dto vs entity
-used to transfer the data
-entity is a object that intact with hib/jpa to fetch data with database
 
 
 
-
-Session 4: Spring AOP 
----------------
-Doubts
-spring bean life cycle in brief
-spring jdbc
-spring AOP
-
-
-
-
-
-Session 5: Creating application from scratch, Spring jdbc, JdbcTemplate
---------------------------------------------------------------------
-* Spring bank application step by step
-* Qucick recap
-* Spring JDBC
-* Spring jdbcTemplate and tx concept
+Spring boot REST bank application step by step :
+-----------------------------------------------
+=> Spring boot REST application
+=> Spring data
+=> Spring boot exception handing
+=> Spring boot validation
+=>Spring boot Monotring and Logging
+=> spring boot profile
+=> spring boot actuator
+=> Spring Boot microservice architecture
+=> spring boot openfeign
+=> Spring boot security
 
 
+=> Spring boot REST application
+-----------------------------------
+Step 1: create spring boot application : web, devtools
 
-Spring DI AOP bank application step by step:
-----------------------------------------
-
-use :
-
-<properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>5.3.27</spring.version>
-    </properties>
-    
-    <dependencies>
-		  <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>5.3.27</version>
-        </dependency>
-	</dependencies>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Step 1: create maven project , put dependencies and log4j2 file
-
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>5.3.27</spring.version>
-    </properties>
-
-    <dependencies>
-        <!--aop-->
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-            <version>1.9.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <version>1.9.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.7</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
-    </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-framework-bom</artifactId>
-                <version>${spring.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-
-
-
-
-log4j2.xml
-------------
-<?xml version="1.0" encoding="UTF-8"?>
-<Configuration xmlns="http://logging.apache.org/log4j/2.0/config">
-
-    <Appenders>
-        <File name="FILE" fileName="logfile.log" append="true">
-            <PatternLayout pattern="%-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] %C{2} (%F:%L) - %m%n"/>
-        </File>
-        <Console name="STDOUT" target="SYSTEM_OUT">
-            <PatternLayout pattern="%-5p | %d{yyyy-MM-dd HH:mm:ss} | [%t] %C{2} (%F:%L) - %m%n"/>
-        </Console>
-    </Appenders>
-    <Loggers>
-<!--        <Logger name="com.demo" level="info"/>-->
-
-        <Root level="info">
-            <AppenderRef ref="STDOUT"/>
-            <AppenderRef ref="FILE"/>
-        </Root>
-    </Loggers>
-
-</Configuration>
-
-
-
-step 2: create dao layer
---------------------------
-
+step 2: create repository layer
+-----------------------------
 class Account{
 	private int id;
 	private String name;
@@ -353,12 +289,13 @@ public interface AccountDao {
     public void updateAccount(Account account);
 }
 
+@Repository
 public class AccountDaoImplMap implements AccountDao{
 
     private Map<Integer, Account> map=new HashMap<>();
     public AccountDaoImplMap(){
-        map.put(1, new Account(1,"raj",1000));
-        map.put(2, new Account(1,"ekta",1000));
+        map.put(1, new Account(1,"amit",1000));
+        map.put(2, new Account(2,"sumit",1000));
     }
     @Override
     public List<Account> getAll() {
@@ -432,31 +369,193 @@ public class AccountServiceImpl implements AccountService{
     }
 }
 
+step 4: Write excpetion
+-----------------------------
+public class BankAccountNotFoundException extends RuntimeException {
+	private static final long serialVersionUID = 1L;
 
-
-
-
-Step 4: write configuration class
-----------------------------------
-@Configuration //hey spring this is a config class
-@ComponentScan(basePackages = "com.busycoder.bankapp")
-public class AppConfig {
+	public BankAccountNotFoundException(String message) {
+		super(message);
+	}
 }
 
-step 5: write a main to to test this
------------------------------------
-public class Main {
-    public static void main(String[] args) {
 
-        ApplicationContext ctx=
-                new AnnotationConfigApplicationContext(AppConfig.class);
+step 5: Write Controllers
+-----------------------------
+AccountCrudController
+---------------------------------
 
-        AccountService accountService=ctx.getBean("accountServiceImpl",
-                AccountService.class);
-        List<Account> accounts=accountService.getAll();
-        accounts.forEach(acc-> System.out.println(acc));
-    }
+
+
+@Controller
+@ResponseBody
+public class AccountCrudController {
+	
+	private AccountService accountService;
+	
+	@Autowired
+	public AccountCrudController(AccountService accountService) {
+		this.accountService = accountService;
+	}
+
+
+	//@ResponseBody annotation ie contain inside @RestController automatically covert java object to json
+	//-----------get all accounts-----
+	@GetMapping(path = "accounts")
+	public List<Account> getAll(){
+		return accountService.getAll();
+	}
+	
+	//------------get account by id--------
+	@GetMapping(path = "accounts/{id}")
+	public Account getById(@PathVariable  int id) {
+		return accountService.getById(id);
+	}
+	
+	
+	//------------add account-------
+	
+	
+	//------------delete account by id--------
+	
+	
+	//------------update account by id--------
+
 }
+
+
+
+step 5: Write Controllers
+-----------------------------
+TransctionController
+---------------------------------
+
+We need to write dto also
+
+public class TransferDto {
+	private Integer fromAccId;
+	private Integer toAccId;
+	private double amount;
+	//getter setter ctr etc
+}
+
+public class DepositDto {
+	private Integer accId;
+	private double amount;
+}
+
+public class WithdrawDto {
+	private Integer accId;
+	private double amount;
+}
+
+
+
+@RestController
+public class TransctionController {
+
+	private AccountService accountService;
+
+	public TransctionController(AccountService accountService) {
+		this.accountService = accountService;
+	}
+	
+	//from postman i am sending json that need to be converted to java object: @RequestBody
+	// transfer
+	@PostMapping(path="transfer")
+	public String transfer(@RequestBody  TransferDto transferDto) {
+		accountService.transfer(transferDto.getFromAccId(),transferDto.getToAccId()	 , transferDto.getAmount());
+		return "fund transfer successfully";
+	}
+	
+	//deposit
+	@PostMapping(path="deposit")
+	public String deposit(@RequestBody  DepositDto depositDto) {
+		accountService.deposit(depositDto.getAccId(), depositDto.getAmount());
+		return "fund deposit successfully";
+	}
+	
+	//withdraw
+	@PostMapping(path="withdraw")
+	public String withdraw(@RequestBody  WithdrawDto withdrawDto) {
+		accountService.withdraw(withdrawDto.getAccId(), withdrawDto.getAmount());
+		return "fund withdra successfully";
+	}
+	
+}
+
+
+step 5: Test with postman
+------------------------
+
+all accounts : get
+http://localhost:9090/accounts
+
+get a particular account:
+http://localhost:9090/accounts/1
+
+
+Fund transfer : Post
+http://localhost:9090/transfer
+
+{
+    "fromAccId": 1,
+    "toAccId": 2,
+    "amount": 10
+}
+
+Fund deposit : Post
+http://localhost:9090/deposit
+
+{
+    "accId": 1,
+    "amount": 10
+}
+
+
+Fund withdraw : Post
+http://localhost:9090/withdraw
+
+{
+    "accId": 1,
+    "amount": 10
+}
+
+
+
+
+--------------------------
+
+
+in case of h2 database :
+---------------------
+
+server.port=8090
+server.servlet.context-path=/productapp
+spring.h2.console.enabled=true
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+# Custom H2 Console URL
+spring.h2.console.path=/h2
+
+spring.jpa.hibernate.ddl-auto=update
+
+logging.level.org.springframework.web: DEBUG
+logging.level.org.hibernate: ERROR
+
+spring.jpa.show-sql=true 
+
+
+
+
+
+
+
+
+
 
 
 
