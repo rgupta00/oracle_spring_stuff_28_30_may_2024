@@ -1,5 +1,6 @@
 package com.bankapp.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,58 +8,55 @@ import org.springframework.stereotype.Service;
 
 import com.bankapp.entity.Account;
 import com.bankapp.exception.BankAccountNotFoundException;
-import com.bankapp.repository.AccountDao;
+import com.bankapp.repository.AccountRepository;
 
 @Service
 public class AccountServiceImpl implements AccountService{
 
-	private AccountDao accountDao;
+	private AccountRepository accountRepository;
 	
 	
 	@Autowired
-	public AccountServiceImpl(AccountDao accountDao) {
-		this.accountDao = accountDao;
+	public AccountServiceImpl(AccountRepository accountRepository) {
+		this.accountRepository = accountRepository;
 	}
 
 	@Override
 	public List<Account> getAll() {
-		return accountDao.getAll();
+		return accountRepository.findAll();
 	}
 
 	@Override
 	public Account getById(int id) {
-		Account account= accountDao.getById(id);
-		if(account==null) {
-			throw new BankAccountNotFoundException("bank account not found");
-		}
+		Account account= accountRepository.findById(id).orElseThrow(()->new BankAccountNotFoundException("bank account not found") );
 		return account;
 	}
 
 	@Override
-	public void transfer(int fromId, int toId, double amount) {
+	public void transfer(int fromId, int toId, BigDecimal amount) {
 		Account fromAcc=getById(fromId);
 		Account toAcc=getById(toId);
-		fromAcc.setBalance(fromAcc.getBalance()-amount);
-		toAcc.setBalance(toAcc.getBalance()+amount);
+		fromAcc.setBalance(fromAcc.getBalance().subtract(amount));
+		toAcc.setBalance(toAcc.getBalance().add(amount));
 		
-		accountDao.updateAccount(fromAcc);
-		accountDao.updateAccount(toAcc);
-		
-	}
-
-	@Override
-	public void deposit(int fromId, double amount) {
-		Account acc=getById(fromId);
-		acc.setBalance(acc.getBalance()+amount);
-		accountDao.updateAccount(acc);
+		accountRepository.save(fromAcc);
+		accountRepository.save(toAcc);
 		
 	}
 
 	@Override
-	public void withdraw(int fromId, double amount) {
+	public void deposit(int fromId, BigDecimal amount) {
 		Account acc=getById(fromId);
-		acc.setBalance(acc.getBalance()-amount);
-		accountDao.updateAccount(acc);
+		acc.setBalance(acc.getBalance().add(amount));
+		accountRepository.save(acc);
+		
+	}
+
+	@Override
+	public void withdraw(int fromId, BigDecimal amount) {
+		Account acc=getById(fromId);
+		acc.setBalance(acc.getBalance().subtract(amount));
+		accountRepository.save(acc);
 	}
 
 }

@@ -273,7 +273,8 @@ Spring boot REST bank application step by step :
 
 
 => Spring boot REST application
------------------------------------
+====================================
+
 Step 1: create spring boot application : web, devtools
 
 step 2: create repository layer
@@ -523,15 +524,18 @@ http://localhost:9090/withdraw
 
 
 
+Part 2: Spring data
+======================
+ abstracion on jpa u dont have to write dao layer
+ 
+step 1: add new dep h2, jpa
+ 
+ 
 
---------------------------
-
-
-in case of h2 database :
----------------------
+step 2: use following to add to application.properties files
+--------------------------------------------------
 
 server.port=8090
-server.servlet.context-path=/productapp
 spring.h2.console.enabled=true
 spring.datasource.url=jdbc:h2:mem:testdb
 spring.datasource.driverClassName=org.h2.Driver
@@ -547,6 +551,325 @@ logging.level.org.springframework.web: DEBUG
 logging.level.org.hibernate: ERROR
 
 spring.jpa.show-sql=true 
+
+step 3: we want to apply jpa annotation to the class Account
+------------------------------------------------------------
+
+@Entity
+@Table(name="account_table")
+public class Account {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+	private String name;
+	private double balance;
+}
+
+step 4: use spring data (abs over jpa)
+-------------------------------------------
+u dont need to write dao layer u need "declare" dao layer
+
+AccountDao extends JpaRepository
+
+@Repository
+public interface AccountRepository extends JpaRepository<Account, Integer>{
+}
+
+
+step 5: change the implementation of service layer
+-----------------------------------
+
+@Service
+public class AccountServiceImpl implements AccountService{
+
+	private AccountRepository accountRepository;
+	
+	
+	@Autowired
+	public AccountServiceImpl(AccountRepository accountRepository) {
+		this.accountRepository = accountRepository;
+	}
+
+	@Override
+	public List<Account> getAll() {
+		return accountRepository.findAll();
+	}
+
+	@Override
+	public Account getById(int id) {
+		Account account= accountRepository.findById(id).orElseThrow(()->new BankAccountNotFoundException("bank account not found") );
+		return account;
+	}
+
+	@Override
+	public void transfer(int fromId, int toId, double amount) {
+		Account fromAcc=getById(fromId);
+		Account toAcc=getById(toId);
+		fromAcc.setBalance(fromAcc.getBalance()-amount);
+		toAcc.setBalance(toAcc.getBalance()+amount);
+		
+		accountRepository.save(fromAcc);
+		accountRepository.save(toAcc);
+		
+	}
+
+	@Override
+	public void deposit(int fromId, double amount) {
+		Account acc=getById(fromId);
+		acc.setBalance(acc.getBalance()+amount);
+		accountRepository.save(acc);
+		
+	}
+
+	@Override
+	public void withdraw(int fromId, double amount) {
+		Account acc=getById(fromId);
+		acc.setBalance(acc.getBalance()-amount);
+		accountRepository.save(acc);
+	}
+
+}
+
+
+step 6: As soon as my application start i should have some records by default added to the database:
+---------------------------------------------------------------------------------------------------
+h2-> as soon as i restart my application my data would be lost
+
+CommandLineRunner in spring boot
+
+
+
+@Component
+public class DataInit implements CommandLineRunner {
+
+	@Autowired
+	private AccountRepository accountRepository;
+	
+	@Override
+	public void run(String... args) throws Exception {
+		
+		//As soon as app start spring boot will run this run method 
+		//data init job
+		
+		accountRepository.save(new Account("amit", 1000.00));
+		accountRepository.save(new Account("sumit", 1000.00));
+		System.out.println("-------------2 accounts are added ---------------------");
+	}
+
+}
+
+step 7: login to h2 console with provided informations
+--------------------------------------------------
+http://localhost:9090/h2
+
+
+
+step 8: (optional) use lombok to get rid of extra boilderplat code
+--------------------------------------------------------------------
+install lombok
+https://projectlombok.org/download
+
+
+step 8: it is not good to use amount or balance as double
+we should use BigDecimal
+--------------------------------------------------------
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class DepositDto {
+	private Integer accId;
+	private BigDecimal amount;
+	
+}
+
+
+@Data
+public class TransferDto {
+	private Integer fromAccId;
+	private Integer toAccId;
+	private BigDecimal amount;
+	
+}
+
+
+@Data
+public class WithdrawDto {
+	private Integer accId;
+	private BigDecimal amount;
+	
+}
+
+@Entity
+@Table(name="account_table")
+@Data
+@NoArgsConstructor
+public class Account {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+	private String name;
+	private BigDecimal balance;
+	
+	public Account(String name, BigDecimal balance) {
+		this.name = name;
+		this.balance = balance;
+	}
+}
+
+
+
+step 8 (b) change the service layer to use BigDecimal
+-----------------------------------------------------
+public interface AccountService {
+	public List<Account> getAll();
+    public Account getById(int id);
+    public void transfer(int fromId, int toId, BigDecimal amount);
+    public void deposit(int fromId, BigDecimal amount);
+    public void withdraw(int fromId, BigDecimal amount);
+}
+
+and change the implementation
+--------------------------------
+
+@Service
+public class AccountServiceImpl implements AccountService{
+
+	private AccountRepository accountRepository;
+	
+	
+	@Autowired
+	public AccountServiceImpl(AccountRepository accountRepository) {
+		this.accountRepository = accountRepository;
+	}
+
+	@Override
+	public List<Account> getAll() {
+		return accountRepository.findAll();
+	}
+
+	@Override
+	public Account getById(int id) {
+		Account account= accountRepository.findById(id).orElseThrow(()->new BankAccountNotFoundException("bank account not found") );
+		return account;
+	}
+
+	@Override
+	public void transfer(int fromId, int toId, BigDecimal amount) {
+		Account fromAcc=getById(fromId);
+		Account toAcc=getById(toId);
+		fromAcc.setBalance(fromAcc.getBalance().subtract(amount));
+		toAcc.setBalance(toAcc.getBalance().add(amount));
+		
+		accountRepository.save(fromAcc);
+		accountRepository.save(toAcc);
+		
+	}
+
+	@Override
+	public void deposit(int fromId, BigDecimal amount) {
+		Account acc=getById(fromId);
+		acc.setBalance(acc.getBalance().add(amount));
+		accountRepository.save(acc);
+		
+	}
+
+	@Override
+	public void withdraw(int fromId, BigDecimal amount) {
+		Account acc=getById(fromId);
+		acc.setBalance(acc.getBalance().subtract(amount));
+		accountRepository.save(acc);
+	}
+
+}
+
+step 9: i want to add for address and phone to account class
+-----------------------------------------------------------
+@Entity
+@Table(name="account_table")
+@Data
+@NoArgsConstructor
+public class Account {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+	private String name;
+	private BigDecimal balance;
+	private String phone;
+	private String email;
+	private String address;
+}
+
+change dbint accordingly 
+
+
+Step 10: we will add more crud methods (with db)
+----------------------------------------------------
+
+try urself:
+//------------add account--------------------
+//------------delete account by id--------
+//------------update account by id--------
+
+
+
+step 10: exception handing
+------------------------------
+
+
+step 11: validation
+--------------------
+
+step 12: xml support
+-------------------
+
+
+step 13: swagger documentation
+-------------------------------
+
+
+step 14: spring boot actuator:
+-------------------------------
+
+
+step 15: how to create war file of the project and deploy to tomcat / jboss
+---------------------------------------------------------------------------
+
+
+step 16: spring security
+---------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
