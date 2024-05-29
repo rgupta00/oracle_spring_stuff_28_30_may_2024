@@ -2,6 +2,7 @@
 <section name="Workbench">
 	<section name="MavenProjectWizardLocationPage">
 		<list key="location">
+			<item value="C:\oracle_spring_stuff_28_30_may_2024\core_spring\04-bankapp-basics\src\main\java\com\bankapp\config\AppConfig.java"/>
 		</list>
 		<list key="projectNameTemplate">
 			<item value="[artifactId]"/>
@@ -43,11 +44,14 @@
 	</section>
 	<section name="MavenProjectWizardArtifactPage">
 		<list key="groupId">
+			<item value="com.bookapp"/>
 			<item value="com.demo"/>
 		</list>
 		<list key="name">
 		</list>
 		<list key="artifactId">
+			<item value="bookapp-di"/>
+			<item value="sampleproject"/>
 			<item value="01-spring-basics"/>
 		</list>
 		<list key="projectNameTemplate">

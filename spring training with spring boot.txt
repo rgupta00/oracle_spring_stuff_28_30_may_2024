@@ -42,6 +42,16 @@ Other Metadata Configurations
 •	The AnnotationConfigApplicationContext
 
 
+
+oracle or mysql
+
+ mysql 8.x
+ 
+ 
+ 
+ 
+ 
+
 Day 2:
 -----
 Spring and Persistence
@@ -448,120 +458,6 @@ public class Main {
     }
 }
 
-
-AOP:
-
-step 5: write LoggingAspect class
-------------------------------------
-first you need to apply 
-@EnableAspectJAutoProxy on the AppConfig class
-hey spring i want to use aop
-
-
-
-@Service
-@Aspect //Aspect =advice +pointcut
-public class LoggingAspect {
-    private Logger logger= LoggerFactory.getLogger(LoggingAspect.class);
-
-    @Around("execution( * com.busycoder.bankapp.service.*Impl.*(..))")
-    public Object applyLogging(ProceedingJoinPoint proceedingJoinPoint)throws Throwable{
-        String methodName=proceedingJoinPoint.getSignature().getName();
-        long startTime=System.currentTimeMillis();
-
-        Object retValue=proceedingJoinPoint.proceed();
-
-        long endTime=System.currentTimeMillis();
-        logger.info("time taken to execute "+ methodName+" is "+(endTime-startTime)+" ms");
-        return retValue;
-    }
-    //we have to handle BankAccNo... AfterThrowing
-    @AfterThrowing(pointcut = "execution( * com.busycoder.bankapp.service.*Impl.*(..))", throwing = "ex")
-    public void afterThrowing(JoinPoint joinPoint, Exception ex){
-        logger.error("Exception -------------- "+ ex.getMessage());
-    }
-}
-
-
-
-Jdbc:API to talk to the database
-DriverManger --> get connection
-statement , preparedStatement, CallableStatement
-
-statement: performance issues, SQL injection project (?)
-preparedStatement: it cache the quaries faster, No prob of SQL injection
-CallableStatement: store procedure
-
-step 6: replace HashMap implementation of dao layer with jdbc
-------------------------------------------------------------
-db.properties
---------------------
-jdbc.driver=com.mysql.cj.jdbc.Driver
-jdbc.url=jdbc:mysql://localhost:3306/busybank
-jdbc.username=root
-jdbc.password=root
-
-now i will define infrastructre bean?
-infrastructre vs business 
-@Bean			@Component
-
-
-
-step 7: understand why we need to use jdbcTemplate
----------------------------------------------------
-
-DriverManager.getConnection() vs DataSource (connection factory)
-
-
-
-
-Change configuration class:
------------------------
-@Configuration //hey spring this is a config class
-@ComponentScan(basePackages = "com.busycoder.bankapp")
-@EnableAspectJAutoProxy
-@PropertySource("classpath:db.properties")
-public class AppConfig {
-
-    //datasouce: aka connection pool that help me to get the jdbc conn
-    @Value("${jdbc.url}")
-    private String url;
-    @Value("${jdbc.driver}")
-    private String driverName;
-
-    @Value("${jdbc.username}")
-    private String username;
-
-    @Value("${jdbc.password}")
-    private String password;
-
-    @Bean
-    public DataSource getDataSource(){
-        DriverManagerDataSource ds=new DriverManagerDataSource();
-        ds.setUrl(url);
-        ds.setPassword(password);
-        ds.setUsername(username);
-        ds.setDriverClassName(driverName);
-        return ds;
-    }
-}
-
-
-I wnat to use jdbc template :
-it is uesd to simply the code
-
-
-step 8: apply decleartive transaction management
----------------------------------------------------
-
-
-database configuration:
--------------------------
-jdbc.driver=com.mysql.cj.jdbc.Driver
-jdbc.url=jdbc:mysql://localhost:3306/busybank
-jdbc.username=root
-jdbc.password=root
-pool.initialSize=10
 
 
 
