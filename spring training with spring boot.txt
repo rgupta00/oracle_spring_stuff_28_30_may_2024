@@ -7,7 +7,7 @@ core java
 jdbc: way to connection to db
 servlet jsp
 some knowlege of design pattern
-	will discuss
+--------------------
 
 SW: java 17
 	sts 4: ide eclipse
@@ -814,27 +814,778 @@ try urself:
 
 
 
-step 10: exception handing
-------------------------------
+Step 10.1: add new method decleration to the service layer
+------------------------------------------------------
+
+public interface AccountService {
+    public Account addAccount(Account account);
+    public Account deleteAccount(int id);
+    public void updateAccount(int id, AccountDetailDto accountDetailDto);
+}
 
 
-step 11: validation
+
+Step 10.2: Create a dto for update operation
+------------------------------------------------------
+
+@Data
+public class AccountDetailDto {
+	private String phone;
+	private String email;
+	private String address;
+}
+
+Step 10.3: implement these method new method decleration to the service layer
+------------------------------------------------------
+
+@Service
+@Transactional
+public class AccountServiceImpl implements AccountService{
+
+	//.....
+
+	@Override
+	public Account deleteAccount(int id) {
+		Account accountToDelete= getById(id);
+		accountRepository.delete(accountToDelete);
+		return accountToDelete;
+	}
+
+	@Override
+	public void updateAccount(int id, AccountDetailDto accountDetailDto) {
+		Account accountToUpdated= getById(id);
+		accountToUpdated.setAddress(accountDetailDto.getAddress());
+		accountToUpdated.setPhone(accountDetailDto.getPhone());
+		accountToUpdated.setEmail(accountDetailDto.getEmail());
+		
+		accountRepository.save(accountToUpdated);//save do both add/update operation ins spring data
+	}
+
+}
+
+Step 10.4: create corrosponding controller
+------------------------------------------------------
+
+@Controller
+@ResponseBody
+public class AccountCrudController {
+	
+	//.......
+	
+	
+	//@RequestBody force json object to be converted to java object, 
+	//proper "parser" jackson parser is alredy in the classpath
+	//we just need to add parser for xml
+	
+	//------------add account-------
+	@PostMapping(path = "accounts")
+	public Account addAccount( @RequestBody Account account) {
+		return accountService.addAccount(account);
+	}
+	
+	
+	//------------delete account by id--------
+	@DeleteMapping(path = "accounts/{id}")
+	public Account deleteById(@PathVariable  int id) {
+		return accountService.deleteAccount(id);
+	}
+	
+	//------------update account by id--------
+	@PutMapping(path = "accounts/{id}")
+	public String updateAccount(@PathVariable  int id,@RequestBody AccountDetailDto accountDetailDto) {
+		 accountService.updateAccount(id, accountDetailDto);
+		 return "account details are updated successfully";
+	}
+
+}
+
+
+
+
+Step 11: how to send correct status code
+----------------------------------------
+ref:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+
+how to send correct status code: ResponseEntity
+
+ResponseEntity: bag that can hold 2 thinng data + status code
+
+@Controller
+@ResponseBody
+public class AccountCrudController {
+	
+	private AccountService accountService;
+	
+	@Autowired
+	public AccountCrudController(AccountService accountService) {
+		this.accountService = accountService;
+	}
+
+
+	//@ResponseBody annotation ie contain inside @RestController automatically covert java object to json
+	//-----------get all accounts-----
+	@GetMapping(path = "accounts")
+	public ResponseEntity<List<Account>> getAll(){
+		List<Account> accounts= accountService.getAll();
+		return ResponseEntity.status(HttpStatus.OK).body(accounts);
+	}
+	
+	//------------get account by id--------
+	@GetMapping(path = "accounts/{id}")
+	@ResponseStatus(code = HttpStatus.OK)
+	public Account getById(@PathVariable  int id) {
+		return accountService.getById(id);
+	}
+	
+	
+	//@RequestBody force json object to be converted to java object, 
+	//proper "parser" jackson parser is alredy in the classpath
+	//we just need to add parser for xml
+	
+	//------------add account-------
+	@PostMapping(path = "accounts")
+	public ResponseEntity<Account> addAccount( @RequestBody Account account) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(accountService.addAccount(account));
+	}
+	
+	
+	//------------delete account by id--------we dont return anything 204
+	@DeleteMapping(path = "accounts/{id}")
+	public ResponseEntity<Void> deleteById(@PathVariable  int id) {
+		 accountService.deleteAccount(id);
+		 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+	}
+	
+	//------------update account by id--------
+	@PutMapping(path = "accounts/{id}")
+	public ResponseEntity<String> updateAccount(@PathVariable  int id,@RequestBody AccountDetailDto accountDetailDto) {
+		 accountService.updateAccount(id, accountDetailDto);
+		 String message= "account details are updated successfully";
+		 return ResponseEntity.ok(message);
+	}
+
+}
+
+
+
+@RestController
+public class TransctionController {
+
+	private AccountService accountService;
+
+	public TransctionController(AccountService accountService) {
+		this.accountService = accountService;
+	}
+	
+	//from postman i am sending json that need to be converted to java object: @RequestBody
+	// transfer
+	@PostMapping(path="transfer")
+	public ResponseEntity<String> transfer(@RequestBody  TransferDto transferDto) {
+		accountService.transfer(transferDto.getFromAccId(),transferDto.getToAccId()	 , transferDto.getAmount());
+		String fundTransferMessage= "fund transfer successfully";
+		return ResponseEntity.ok(fundTransferMessage);
+	}
+	
+	//deposit
+	@PostMapping(path="deposit")
+	public ResponseEntity<String> deposit(@RequestBody  DepositDto depositDto) {
+		accountService.deposit(depositDto.getAccId(), depositDto.getAmount());
+		String fundDepositMessage= "fund deposit successfully";
+		return ResponseEntity.ok(fundDepositMessage);
+	}
+	
+	//withdraw
+	@PostMapping(path="withdraw")
+	public ResponseEntity<String> withdraw(@RequestBody  WithdrawDto withdrawDto) {
+		accountService.withdraw(withdrawDto.getAccId(), withdrawDto.getAmount());
+		String fundWithdrawMessage= "fund withdraw successfully";
+		return ResponseEntity.ok(fundWithdrawMessage);
+	}
+	
+}
+
+
+Step 12: Tranasction management:
+----------------------------------
+ACID concepts
+in normal app: u are responsible for tx mgt
+
+try{
+	tx.begin();
+	
+	tx.commit();
+}catch(..........){
+}
+
+Spring data : automatically transactional 
+but in terms of business logic we need to apply tx in service:
+
+Spring provide declearitive tx mgt
+i should put the @Transactional
+acid concept is taken care itself
+
+Pls refer 
+https://www.marcobehler.com/guides/spring-transaction-management-transactional-in-depth
+for more indepth understanding on tx mgt
+
+
+
+
+
+step 13: exception handing
+--------------------------
+How to do excpetion handing in spring boot:
+using AOP* (Aspect oriented programming)
+it is a way to handle cross cutting concern?
+
+service: BL + tx , sec, caching, ex handing
+
+AOP is just a techenique to handle ccc in declerative way
+
+
+{
+    "timestamp": "2024-05-30T05:41:30.232+00:00",
+    "status": 500,
+    "error": "Internal Server Error",
+	"toContact":"navin@oracle.com"
+}
+
+
+step 13.1 we need a dto to hold the error message:
+---------------------------------------------------
+
+@Data
+public class ErrorInfo {
+	private String timestamp;
+	private String   status;
+	private String   error;
+	private String  toContact;
+}
+
+
+step 13.2 we need write a special controller to handle the exceptions
+---------------------------------------------------
+@RestControllerAdvice
+public class BankAppExHandlerController {
+
+	@ExceptionHandler(BankAccountNotFoundException.class)
+	public ResponseEntity<ErrorInfo> handle404(BankAccountNotFoundException ex){
+		
+		ErrorInfo errorInfo= ErrorInfo.builder()
+				.error(ex.getMessage())
+				.toContact("ravi@ora.com")
+				.timestamp(LocalDateTime.now())
+				.status(HttpStatus.NOT_FOUND.toString())
+				.build();
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorInfo);
+	}
+	
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<ErrorInfo> handle500(Exception ex){
+		
+		ErrorInfo errorInfo= ErrorInfo.builder()
+				.error("pls try after some time")
+				.toContact("ravi@ora.com")
+				.timestamp(LocalDateTime.now())
+				.status(HttpStatus.INTERNAL_SERVER_ERROR.toString())
+				.build();
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorInfo);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+step 14: validation
+--------------------
+We need to ensure to stop the user to send wrong data to the application
+for ex:
+{
+        "name": null,
+        "balance": 1000.00,
+        "phone": "9950543978",
+        "email": "indu@gmail",
+        "address": "banglore"
+    }
+	
+data should not be allowed during post call to add a account
+
+How to achive it?
+
+Step 14.1: add a validation starter 
+----------------------------------
+
+
+
+Step 14.2: Apply the annotation on pojo so that validation can be done
+----------------------------------
+
+
+@Entity
+@Table(name="account_table")
+@Data
+@NoArgsConstructor
+public class Account {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int id;
+	
+	@NotNull(message = "account holder name can not be null")
+	@Pattern(regexp = "[A-Za-z]+( [A-Za-z]+)*", message = "account holder name should be alphabets")
+	private String name;
+	@NotNull(message = "balance should not be null")
+	@Range(min = 10, max = 100000, message = "account balance must be in range of 10 to 100000")
+	private BigDecimal balance;
+	
+	@NotNull(message = "phone should not be null")
+	@Pattern(regexp = "[789][0-9]{9}", message = "phone no should be valid")
+	private String phone;
+	
+	@Email(message = "email should be correct formate")
+	@NotNull(message = "email should not be null")
+	private String email;
+	
+	@NotNull(message = "address should not be null")
+	private String address;
+	
+	public Account(String name, BigDecimal balance, String phone, String email, String address) {
+		this.name = name;
+		this.balance = balance;
+		this.phone = phone;
+		this.email = email;
+		this.address = address;
+	}
+	
+	
+}
+
+Step 14.3: Force spring boot to apply these annotation before converting to java objection -> @Valid
+--------------------------------------------------------------------
+	@PostMapping(path = "accounts")
+	public ResponseEntity<Account> addAccount( @RequestBody  @Valid Account account) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(accountService.addAccount(account));
+	}
+	
+	
+BAD_REQUEST
+
+Step 14.4: Now we need to write a handler to handle MethodArgumentNotValidException
+--------------------------------------------------------------------
+import java.time.LocalDateTime;
+
+@RestControllerAdvice
+public class BankAppExHandlerController {
+
+	//-----------------
+	
+		//MethodArgumentNotValidException
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ErrorInfo> handle400(MethodArgumentNotValidException ex){
+		
+		ErrorInfo errorInfo= ErrorInfo.builder()
+				.error("some validation problem")
+				.toContact("ravi@ora.com")
+				.timestamp(LocalDateTime.now())
+				.status(HttpStatus.BAD_REQUEST.toString())
+				.build();
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorInfo);
+	}
+
+}
+
+Step 14.5: Now we need to give cause why validation have failed?
+--------------------------------------------------------------------
+
+//MethodArgumentNotValidException
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ErrorInfo> handle400(MethodArgumentNotValidException ex){
+		
+		String errorMessage= ex.getBindingResult()
+				.getAllErrors()
+				.stream()
+				.map(x->x.getDefaultMessage())
+				.collect(Collectors.joining(", "));
+		
+		ErrorInfo errorInfo= ErrorInfo.builder()
+				.error(errorMessage)
+				.toContact("ravi@ora.com")
+				.timestamp(LocalDateTime.now())
+				.status(HttpStatus.BAD_REQUEST.toString())
+				.build();
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorInfo);
+	}
+	
+	
+Step 14.6: Hard coding of error message is bad thing, how to control it?
+--------------------------------------------------------------------
+spring boot alreay have message handler configured... u just need to use it
+
+
+We need to write the message into a file
+-------------------------------------------
+
+ValidationMessages.properties
+-----------------------------
+account.email.absent=Please provide email address
+account.email.invalid=Please provide valid email address
+
+account.name.absent=Please provide customer name
+account.name.invalid=Name should contain only alphabets and space
+
+account.phone.absent=Please provide phone 
+account.phone.invalid=Please provide correct phone number of 10 digits
+
+account.balance.absent=Please provide initial balance 
+account.balance.invalid=Please provide correct initial balance bw 100 to 100000
+
+what if file name is something else ( u need to define a extra bean)
+----------------------------------------------------------------------
+https://www.baeldung.com/spring-custom-validation-message-source
+
+
+
+
+
+Now apply these values to the pojo
+-----------------------------------------
+
+
+    @NotNull(message = "{account.name.absent}")
+	@Pattern(regexp = "[A-Za-z]+( [A-Za-z]+)*", message = "{account.name.invalid}")
+	private String name;
+	
+	@NotNull(message = "{account.balance.absent}")
+	@Range(min = 100, max = 100000, message = "{account.balance.invalid}")
+	private BigDecimal balance;
+
+	@Email(message = "{account.email.invalid}")
+	@NotNull(message = "{account.email.absent}")
+	private String email;
+	
+	@NotNull(message = "{account.phone.absent}")
+	@Pattern(regexp = "[789][0-9]{9}", message = "{account.phone.invalid}")
+	private String phone;
+	
+	
+
+Step 14.7: Hard coding of error message is bad thing, how to control it?
+--------------------------------------------------------------------
+
+step 14.7.1: put string for error message into application.properties file
+--------------------------------------------------------------------------
+UserInterface.TRANSFER_SUCCESS=transfer done successfully
+UserInterface.DEPOSIT_SUCCESS=amount deposit successfully
+UserInterface.WITHDRAW_SUCCESS=amount withdraw successfully
+
+Service.ACCOUNT_NOT_EXISTS=Account not exist
+
+Service.FROM_ACCOUNT_NOT_EXISTS=From Account not exist
+
+Service.TO_ACCOUNT_NOT_EXISTS=To Account not exist
+
+Service.NOT_SUFFICIENT_BALANCE=Account dont have sufficient balance
+
+
+
+
+step 14.7.2: we need to get these values into my controller/service layer
+--------------------------------------------------------------------------
+Autowire Environment to the controller , this will help me to get error informations
+
+
+@RestController
+public class TransctionController {
+
+	private AccountService accountService;
+	private Environment environment;
+
+	
+	@Autowired
+	public TransctionController(AccountService accountService, Environment environment) {
+		this.accountService = accountService;
+		this.environment = environment;
+	}
+
+}
+
+
+step 14.7.2:we need to get values using environment so that no hard coding must be there in project
+--------------------------------------------------------------------------
+
+@RestController
+public class TransctionController {
+
+	private AccountService accountService;
+	private Environment environment;
+
+	
+	@Autowired
+	public TransctionController(AccountService accountService, Environment environment) {
+		this.accountService = accountService;
+		this.environment = environment;
+	}
+	
+	//from postman i am sending json that need to be converted to java object: @RequestBody
+	// transfer
+	@PostMapping(path="transfer")
+	public ResponseEntity<String> transfer(@RequestBody  TransferDto transferDto) {
+		accountService.transfer(transferDto.getFromAccId(),transferDto.getToAccId()	 , transferDto.getAmount());
+		
+		String fundTransferMessage= environment.getProperty("UserInterface.TRANSFER_SUCCESS");
+		
+		return ResponseEntity.ok(fundTransferMessage);
+	}
+	
+	//deposit
+	@PostMapping(path="deposit")
+	public ResponseEntity<String> deposit(@RequestBody  DepositDto depositDto) {
+		accountService.deposit(depositDto.getAccId(), depositDto.getAmount());
+		String fundDepositMessage= environment.getProperty("UserInterface.DEPOSIT_SUCCESS");
+		return ResponseEntity.ok(fundDepositMessage);
+	}
+	
+	//withdraw
+	@PostMapping(path="withdraw")
+	public ResponseEntity<String> withdraw(@RequestBody  WithdrawDto withdrawDto) {
+		accountService.withdraw(withdrawDto.getAccId(), withdrawDto.getAmount());
+		String fundWithdrawMessage= environment.getProperty("UserInterface.WITHDRAW_SUCCESS");
+		return ResponseEntity.ok(fundWithdrawMessage);
+	}
+	
+}
+
+
+
+
+
+
+
+step 15: how to support xml xml support
+-------------------------------------------
+We need a parser for xml (for json it is alreay there in spring boot)
+
+	Step 1: put parser for xml
+
+	     <dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+	     </dependency>
+
+	Step 2:
+	@GetMapping(path = "products", produces = {MediaType.APPLICATION_JSON_VALUE, 
+			MediaType.APPLICATION_XML_VALUE})
+			
+			
+
+
+Step 16: bannner:
 --------------------
 
-step 12: xml support
+spring.banner.location=classpath:banner.txt
+
+https://devops.datenkollektiv.de/banner.txt/index.html
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Step 14: running as jar file:
+--------------------
+java -jar  jpa_demo2-0.0.1-SNAPSHOT.jar --server.port=8050
+
+
+
+step 15: spring boot profile
+----------------------------
+
+step 16: spring boot reading property files:
+---------------------------------
+
+1. @Value annotation
+2. Enviornment
+3. @ConfigrationProperties
+
+
+@EnableConfigurationProperties(Config.class)
+
+@ConfigrationProperties(prefix="db")
+
+
+
+
+step 17: spring boot logging customization:
+---------------------------------
+
+
+spring boot logging:
 -------------------
+ 	     
+Disable logging :
+---------------
+logging.level.root=OFF
+logging.level.org.springframework.boot=OFF
+spring.main.banner-mode=OFF   
+
+	     
+     
+Customizing logging :
+---------------	     
+logging.level.org.springframework.web: DEBUG
+logging.level.org.hibernate: ERROR
+
+logging.level.com.productapp=info
 
 
-step 13: swagger documentation
+logging.level.org.springframework.web: DEBUG
+logging.level.org.hibernate: ERROR
+
+
+# Logging pattern for the console
+logging.pattern.console= "%d{yyyy-MM-dd } [%thread] %-5level %logger{36} - %msg%n"
+#logging pattern for file
+logging.pattern.file= "%d{yyyy-MM-dd } [%thread] %-5level %logger{36} - %msg%n"
+
+logging.file.name=/home/raj/Desktop/logs/server.log
+	     
+	     
+ 
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-log4j2</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-spring-boot</artifactId>
+</dependency>
+
+
+
+
+step 18: swagger documentation
+-------------------------------
+https://www.baeldung.com/spring-rest-openapi-documentation
+
+=> Documenting a Spring REST API Using OpenAPI 3.0
+=>Swagger is almost equivalent to SOAP formate, used for documentation of REST api
+
+		Step 1:
+
+	<dependency>
+		<groupId>org.springdoc</groupId>
+		<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+		<version>2.2.0</version>
+	</dependency>
+
+	Step 2:
+
+	http://localhost:8090/bookapp/v3/api-docs
+	
+	http://localhost:8090/bookapp/swagger-ui/index.html
+
+	http://localhost:8090/bookapp/v3/api-docs.yaml
+
+	Step 3:
+	Customization location
+	springdoc.swagger-ui.path=/swagger-ui-bookapp.html
+
+	@OpenAPIDefinition(info = @Info(title = "bookapp API", version = "2.0" , description = "YMSLI bookapp API"))
+	public class BookappApplication implements CommandLineRunner {
+	}
+
+
+
+
+step 19: spring boot actuator:
 -------------------------------
 
 
-step 14: spring boot actuator:
--------------------------------
+Spring boot Actuator:
+-------------------------
+
+server.port=8080
+spring.devtools.restart.enabled=true
+#management.endpoints.web.exposure.exclude=*
+management.endpoints.web.exposure.include=health, custom-endpoint
+management.endpoint.health.show-details=always
+management.health.disk.enabled=true
+management.health.livenessstate.enabled=true
+management.health.readinessstate.enabled=true
+management.server.port=9090
 
 
-step 15: how to create war file of the project and deploy to tomcat / jboss
+#/actuator/info endpoint will show the information given here, keys
+# that are started with info
+info.app.encoding=UTF-8
+info.app.java.source=11
+info.app.java.target=11
+info.app.name=spring booot actuator
+
+
+Custom end points
+
+@Configuration
+@Endpoint(id = "custom-endpoint")
+public class CustomEndpoints {
+    @ReadOperation
+    public String getCustomData(){
+        return "This is custom Data";
+    }
+}
+
+
+
+
+
+
+step 20: how to create war file of the project and deploy to tomcat / jboss
 ---------------------------------------------------------------------------
+
 
 
 step 16: spring security

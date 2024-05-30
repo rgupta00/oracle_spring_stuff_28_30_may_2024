@@ -3,6 +3,9 @@ package com.bankapp.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,11 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.bankapp.dto.AccountDetailDto;
 import com.bankapp.entity.Account;
 import com.bankapp.service.AccountService;
+
+import jakarta.validation.Valid;
 
 //@RestController
 @Controller
@@ -32,15 +36,19 @@ public class AccountCrudController {
 
 	//@ResponseBody annotation ie contain inside @RestController automatically covert java object to json
 	//-----------get all accounts-----
-	@GetMapping(path = "accounts")
-	public List<Account> getAll(){
-		return accountService.getAll();
+	@GetMapping(path = "accounts", produces =
+		{MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
+	public ResponseEntity<List<Account>> getAll(){
+		List<Account> accounts= accountService.getAll();
+		return ResponseEntity.status(HttpStatus.OK).body(accounts);
 	}
 	
 	//------------get account by id--------
 	@GetMapping(path = "accounts/{id}")
-	public Account getById(@PathVariable  int id) {
-		return accountService.getById(id);
+	public ResponseEntity<Account> getById(@PathVariable  int id) {
+		Account account= accountService.getById(id);
+		
+		return ResponseEntity.ok(account);
 	}
 	
 	
@@ -50,22 +58,24 @@ public class AccountCrudController {
 	
 	//------------add account-------
 	@PostMapping(path = "accounts")
-	public Account addAccount( @RequestBody Account account) {
-		return accountService.addAccount(account);
+	public ResponseEntity<Account> addAccount( @RequestBody  @Valid Account account) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(accountService.addAccount(account));
 	}
 	
 	
-	//------------delete account by id--------
+	//------------delete account by id--------we dont return anything 204
 	@DeleteMapping(path = "accounts/{id}")
-	public Account deleteById(@PathVariable  int id) {
-		return accountService.deleteAccount(id);
+	public ResponseEntity<Void> deleteById(@PathVariable  int id) {
+		 accountService.deleteAccount(id);
+		 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 	
 	//------------update account by id--------
 	@PutMapping(path = "accounts/{id}")
-	public String updateAccount(@PathVariable  int id,@RequestBody AccountDetailDto accountDetailDto) {
+	public ResponseEntity<String> updateAccount(@PathVariable  int id,@RequestBody AccountDetailDto accountDetailDto) {
 		 accountService.updateAccount(id, accountDetailDto);
-		 return "account details are updated successfully";
+		 String message= "account details are updated successfully";
+		 return ResponseEntity.ok(message);
 	}
 
 }

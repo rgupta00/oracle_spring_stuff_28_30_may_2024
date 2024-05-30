@@ -26,6 +26,9 @@ public class AccountServiceImpl implements AccountService{
 
 	@Override
 	public List<Account> getAll() {
+		/*
+		 * if(1==1) throw new RuntimeException();
+		 */
 		return accountRepository.findAll();
 	}
 
@@ -43,6 +46,11 @@ public class AccountServiceImpl implements AccountService{
 		toAcc.setBalance(toAcc.getBalance().add(amount));
 		
 		accountRepository.save(fromAcc);
+		
+		/*
+		 * if(1==1) throw new RuntimeException("some run time error");
+		 */
+		
 		accountRepository.save(toAcc);
 		
 	}
