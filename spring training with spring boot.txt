@@ -1719,7 +1719,75 @@ docker run --name empapp -p 8080:8080 rgupta00/empapp:1.2
 
 
 
+Roadmap for modern java backend engg : 2024
+---------------------------------------------
+core java:
+----------
+	OOPs concepts
+	Interface abs class
+	SOLID
+	
+	io, serilization
+	ex handling
+	logging: log4j
+	
+	collection aka readymade
+	how to imp ll, stack, tree.... Competitive programming*
+	
+adv java:
+-------------
 
+	Threads
+	
+	Java reflection
+	
+	java annotation
+	
+	java 8 features
+	
+	java 9 features
+	
+	java 17 upto features
+	
+	GOF patterns
+	
+JDBC
+	tx mgt
+	ACID
+
+Servlet jsp basics 
+
+Spring framework
+	DI
+	AOP
+	Spring jdbc
+	Spring Hibernate
+	Spring mvc with jsp (basics)
+	
+Spring Boot
+	=> Understand Depdendency Injection
+	=> bean wiring :xml, annoation, java configuraton
+	=> Spring boot aop
+	=> spring mvc basics
+	=> REST basics
+	=> Spring boot REST application
+	=> Spring AOP
+	=> Spring JDBCTemplate
+	=> Spring data
+	=> Spring boot web application, Spring MVC arch
+	=>Spring boot Monotring and Logging
+	=> Spring boot security
+	=> spring boot profile
+	=> spring boot actuator
+	=> spring boot jdbcTemplate
+	=> Spring Boot microservice architecture
+	=> spring boot openfeign
+	
+Docker k8s linux
+Microservices
+
+	
+	
 
 
 
