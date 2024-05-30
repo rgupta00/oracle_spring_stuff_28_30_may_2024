@@ -1408,33 +1408,86 @@ https://devops.datenkollektiv.de/banner.txt/index.html
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Step 14: running as jar file:
+Step 14: running spring boot application as jar file:
 --------------------
 java -jar  jpa_demo2-0.0.1-SNAPSHOT.jar --server.port=8050
 
 
 
-step 15: spring boot profile
+step 16: spring boot mysql
 ----------------------------
+Step 16.1: add mysql dep in the pom of spring boot
+
+
+step 16.2: put prop related to mysql
+----------------------------------------
+
+
+spring.datasource.url=jdbc:mysql://localhost:3306/demoms?useSSL=false
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+logging.level.org.springframework.web: DEBUG
+logging.level.org.hibernate: ERROR
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+
+
+step 16.3: Create database and use it and run it...
+----------------------------------------
+
+step 17: spring boot profile
+----------------------------
+let say i want to switch from h2 to mysql dependeing on devops
+
+dev
+test
+pre-prod
+prod
+
+test: h2
+prod: mysql
+
+how to manage switching the profile
+
+step 17.1: we need to create diff prop file depending on profile
+---------------------------------------------------------------
+application-prod.properties
+---------------------------
+
+spring.datasource.url=jdbc:mysql://localhost:3306/edu123
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+application-test.properties
+----------------------------
+spring.h2.console.enabled=true
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.h2.console.path=/h2
+
+
+step 17.2 use profile while running the app as jar file:
+---------------------------------------------------------
+java -jar bankapp.jar --spring.profiles.active=prod
+how to change the port number?
+
+java -jar --spring.profiles.active=prod bankapp.jar --server.port=9999
+
+
 
 step 16: spring boot reading property files:
 ---------------------------------
+refer example : 
+bankapp-08-profile from github
+
 
 1. @Value annotation
 2. Enviornment
@@ -1443,7 +1496,7 @@ step 16: spring boot reading property files:
 
 @EnableConfigurationProperties(Config.class)
 
-@ConfigrationProperties(prefix="db")
+@ConfigurationProperties(prefix="spring.datasource")
 
 
 
@@ -1588,8 +1641,59 @@ step 20: how to create war file of the project and deploy to tomcat / jboss
 
 
 
-step 16: spring security
----------------------------
+
+
+step 21: how to create docker images of spring boot application
+----------------------------------------------------------------
+
+step 2: Create Dockerfile
+
+
+
+
+FROM openjdk:17-alpine
+MAINTAINER email="rgupta.mtech@gmail.com"
+EXPOSE 8080
+ADD target/empapp.jar empapp.jar
+ENTRYPOINT ["java","-jar","empapp.jar"]
+
+
+
+step 3: create image using command
+
+docker build -t rgupta00/empapp:1.2 .
+
+docker image ls
+
+
+step 4: run image 
+docker container run --name producer -p 8080:8080 -d rgupta00/empapp:1.2
+
+docker container logs <id>
+
+docker container logs -f <id>
+
+step 5: push image to docker hub
+
+first login : docker login
+
+then run command : 
+	docker tag empapp:1.2 rgupta00/empapp:1.2
+	docker push rgupta00/empapp:1.2
+
+step 6: pull image from the docker hub
+
+docker pull rgupta00/empapp:1.2
+
+step 7: other person now can pull the image
+
+	remove the images 
+	docker images
+	docker image rmi <imgid> -f
+	
+now pull the image and run it
+
+docker run --name empapp -p 8080:8080 rgupta00/empapp:1.2
 
 
 
@@ -1637,6 +1741,9 @@ step 16: spring security
 
 
 
+Reference book:
+-----------------
+Beginning Spring Boot 3: Build Dynamic Cloud-Native Java Applications and Microservices Paperback
 
 interview questions:
 https://github.com/altafjava/spring-interview-questions-answers
